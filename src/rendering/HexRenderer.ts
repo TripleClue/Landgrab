@@ -106,6 +106,11 @@ export class HexRenderer {
     camera: Camera,
     teams: Map<string, Team>
   ): void {
+    // Direction vectors matching HEX_DIRECTIONS order
+    const dirs = [
+      [1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1],
+    ];
+
     grid.forEachCell((cell) => {
       if (!cell.ownerId) return;
       const { x, y } = hexToPixel(cell.coord.q, cell.coord.r);
@@ -114,19 +119,14 @@ export class HexRenderer {
       const team = teams.get(cell.ownerId);
       if (!team) return;
 
-      const neighbors = grid.getNeighbors(cell.coord.q, cell.coord.r);
       const verts = getHexVertices(x, y, HEX_SIZE * 0.96);
 
       for (let i = 0; i < 6; i++) {
-        const neighbor = neighbors.find((n) => {
-          const nIdx = this.getNeighborIndex(cell.coord.q, cell.coord.r, n.coord.q, n.coord.r);
-          return nIdx === i;
-        });
+        const nq = cell.coord.q + dirs[i][0];
+        const nr = cell.coord.r + dirs[i][1];
+        const neighbor = grid.getCell(nq, nr);
 
-        const isBorder =
-          !neighbor || (neighbor && neighbor.ownerId !== cell.ownerId);
-
-        if (isBorder) {
+        if (!neighbor || neighbor.ownerId !== cell.ownerId) {
           ctx.beginPath();
           ctx.moveTo(verts[i][0], verts[i][1]);
           ctx.lineTo(verts[(i + 1) % 6][0], verts[(i + 1) % 6][1]);
@@ -138,17 +138,5 @@ export class HexRenderer {
         }
       }
     });
-  }
-
-  private getNeighborIndex(q: number, r: number, nq: number, nr: number): number {
-    const dq = nq - q;
-    const dr = nr - r;
-    const dirs = [
-      [1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1],
-    ];
-    for (let i = 0; i < 6; i++) {
-      if (dirs[i][0] === dq && dirs[i][1] === dr) return i;
-    }
-    return -1;
   }
 }

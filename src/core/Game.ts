@@ -305,6 +305,9 @@ export class Game {
     const w = this.canvas.width / (window.devicePixelRatio || 1);
     const h = this.canvas.height / (window.devicePixelRatio || 1);
 
+    // Keep camera viewport in sync with canvas size
+    this.camera.setViewport(w, h);
+
     // Apply screen shake offset to camera temporarily
     const origX = this.camera.x;
     const origY = this.camera.y;

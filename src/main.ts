@@ -9,7 +9,8 @@ function resizeCanvas(canvas: HTMLCanvasElement): void {
   canvas.style.height = `${window.innerHeight}px`;
 
   const ctx = canvas.getContext('2d')!;
-  ctx.scale(dpr, dpr);
+  // Reset transform before scaling to prevent accumulation on resize
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
 function main(): void {
